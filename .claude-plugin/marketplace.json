@@ -1,0 +1,18 @@
+{
+  "name": "my-memory-local",
+  "description": "Local install of the my-memory plugin",
+  "owner": {
+    "name": "Navneeth Kannan"
+  },
+  "plugins": [
+    {
+      "name": "my-memory",
+      "description": "A personal memory wiki for Claude Code: Claude remembers what matters across sessions, finds it again on its own, and keeps the wiki tidy. Everything stays on your own Mac.",
+      "version": "1.0.0",
+      "source": "./",
+      "author": {
+        "name": "Navneeth Kannan"
+      }
+    }
+  ]
+}
