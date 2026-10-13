@@ -48,8 +48,9 @@ Please install the "my-memory" plugin for me. I'm not technical, so do every ste
 | Type this | What happens |
 |---|---|
 | *(nothing)* | On every message, Claude quietly looks up your most relevant notes and reads them. |
+| *(nothing)* | Every 10 messages or so, Claude checks whether anything from the chat is worth remembering and saves it by itself. You'll see one short line: `Memory check: nothing new to save.` or `Saving to memory: ...` |
 | `/my-memory:add <something>` | Claude drafts a note about it and saves it once you say yes. |
-| `/my-memory:wrap` | At the end of a session, Claude proposes what to save from the chat. You pick. |
+| `/my-memory:wrap` | Optional. At the end of a session, Claude proposes what to save from the chat. You pick. |
 | `/my-memory:recall <question>` | Search your notes directly. |
 | `/my-memory:tasks` | List open to-dos found in your notes. |
 | `/my-memory:doctor` | Fix broken links and other tidy-up items Claude found. |
@@ -93,7 +94,7 @@ Windows needs exactly 3.11 because one search library has no Windows build for n
 ## Good to know
 
 - Setup turns off Claude Code's built-in auto-memory, so notes don't land in two places.
-- Setup adds five small hooks to `~/.claude/settings.json` (on Windows, `C:\Users\<you>\.claude\settings.json`), after saving a backup next to it (`settings.json.bak-my-memory`). Running setup again is safe.
+- Setup adds six small hooks to `~/.claude/settings.json` (on Windows, `C:\Users\<you>\.claude\settings.json`), after saving a backup next to it (`settings.json.bak-my-memory`). It also lets Claude read and edit files in your notes folder without asking, so the automatic saves never stop to ask permission. Running setup again is safe.
 - Keep the notes folder out of iCloud Drive and OneDrive. Files kept "online-only" look empty to the search index.
 - Logs, if something seems off: `~/.claude/memory_index/logs/`.
 

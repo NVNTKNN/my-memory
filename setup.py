@@ -12,6 +12,7 @@ from __future__ import annotations
 import datetime
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -28,10 +29,10 @@ SETTINGS = HOME / ".claude" / "settings.json"
 VENV = INDEX_DIR / ".venv"
 VENV_PY = VENV / ("Scripts/python.exe" if WINDOWS else "bin/python")
 COPIED = ["build.py", "build_wrapper.py", "search.py", "lint_vault.py",
-          "archive_log.py", "reconcile.py"]
+          "archive_log.py", "reconcile.py", "checkpoint_hook.py"]
 # Script names whose hooks this setup owns. Re-running setup replaces them.
 OWNED = ("search.py", "lint_vault.py", "build_wrapper.py", "build.py",
-         "reconcile.py")
+         "reconcile.py", "checkpoint_hook.py")
 
 
 def step(msg: str) -> None:
@@ -59,6 +60,15 @@ def py_cmd(script: str, *extra: str) -> str:
     return " ".join([arg(VENV_PY), "-X", "utf8", arg(INDEX_DIR / script), *extra])
 
 
+def rule_path(posix: str) -> str:
+    """An absolute path in Claude Code permission-rule form: a leading `//`,
+    and on Windows the drive as a lowercase segment (C:/Users -> //c/Users)."""
+    m = re.match(r"^([A-Za-z]):/", posix)
+    if m:
+        posix = "/" + m.group(1).lower() + posix[2:]
+    return "/" + posix
+
+
 def load_settings() -> dict:
     if not SETTINGS.is_file():
         return {}
@@ -84,7 +94,7 @@ def drop_owned(entries: list) -> list:
     return [e for e in entries if e.get("hooks")]
 
 
-def patch_settings() -> None:
+def patch_settings(vault: Path) -> None:
     settings = load_settings()
     if SETTINGS.is_file():
         backup = SETTINGS.with_name("settings.json.bak-my-memory")
@@ -122,8 +132,23 @@ def patch_settings() -> None:
     hooks["SessionStart"].append({"matcher": "startup|resume", "hooks": [{
         "type": "command", "command": py_cmd("reconcile.py", "--apply", "--log", rec_log),
         "timeout": 120}]})
+    # Each time Claude finishes an answer: after 10 messages or 100 tool calls
+    # since the last check, ask Claude whether anything is worth saving.
+    put("Stop", {"hooks": [{
+        "type": "command", "command": py_cmd("checkpoint_hook.py"), "timeout": 30}]})
     hooks = {k: v for k, v in hooks.items() if v}
     settings["hooks"] = hooks
+
+    # The memory check saves through a background helper that nobody watches,
+    # so it must never need a permission prompt: reading and editing inside the
+    # wiki only, plus reading vault.txt, which says where the wiki is. An Edit
+    # rule also covers new files; a Write(...) rule would be ignored.
+    wiki = rule_path(vault.as_posix())
+    allow = settings.setdefault("permissions", {}).setdefault("allow", [])
+    for rule in ("Read(~/.claude/memory_index/vault.txt)",
+                 f"Read({wiki}/**)", f"Edit({wiki}/**)"):
+        if rule not in allow:
+            allow.append(rule)
 
     SETTINGS.parent.mkdir(parents=True, exist_ok=True)
     tmp = SETTINGS.with_suffix(".json.tmp")
@@ -167,7 +192,7 @@ def main() -> None:
         since.write_text(f"{datetime.date.today():%Y-%m-%d}\n", encoding="utf-8")
 
     step(f"Adding hooks to {SETTINGS}")
-    patch_settings()
+    patch_settings(vault)
 
     step("Building the search index (first run downloads an ~80 MB model)")
     env = dict(os.environ, HF_HUB_OFFLINE="0", TRANSFORMERS_OFFLINE="0",
@@ -184,7 +209,8 @@ def main() -> None:
     print(f"  Wiki:  {vault}")
     print(f"  Index: {CHROMA_DIR}")
     print("  Hooks: memory recall on every prompt, tidy-check on wiki edits,")
-    print("         reindex + self-heal at session start")
+    print("         reindex + self-heal at session start,")
+    print("         memory check every 10 messages or 100 tool calls")
     print(f"  Logs:  {LOG_DIR}")
     print("  Claude Code's built-in auto-memory is now off (autoMemoryEnabled=false).")
     print()

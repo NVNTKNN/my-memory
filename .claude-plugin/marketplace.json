@@ -8,7 +8,7 @@
     {
       "name": "my-memory",
       "description": "A personal memory wiki for Claude Code: Claude remembers what matters across sessions, finds it again on its own, and keeps the wiki tidy. Everything stays on your own Mac.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "source": "./",
       "author": {
         "name": "Navneeth Kannan"

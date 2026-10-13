@@ -32,6 +32,8 @@ If it reports `log.md` is over the limit, add a line to the step-4 summary: `ARC
 
 ### 2. Review the session
 
+Memory checks may already have saved facts from earlier in this session. Look for lines like `Saving to memory: …` and `Memory check:` lines in `log.md`. Those facts already have pages. Update them only if something changed since, and don't propose them again.
+
 Look for:
 - **Decisions made** — choices, plans, calls the user made
 - **Surprises** — things that weren't obvious and could trip up a future session
