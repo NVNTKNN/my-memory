@@ -73,7 +73,7 @@ Save all? Or say "nothing", or tell me what to skip or change.
 
 ### 5. Write on confirmation
 
-**New page** — pick exactly one top-level tag from `## Closed top-level tag legend` in MEMORY.md. If a folder named after that tag exists (`{wiki}/{tag}/`), write there; otherwise write to the wiki root.
+**New page** — pick exactly one top-level tag from `## Closed top-level tag legend` in MEMORY.md. If a folder named after that tag exists (`{wiki}/{tag}/`), write there; otherwise write to the wiki root. Name the file `{type}_{slug}.md` in plain English or romaji letters, even when the note is in Japanese; write the note itself in the user's language.
 
 ```markdown
 ---

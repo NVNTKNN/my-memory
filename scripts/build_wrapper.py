@@ -56,7 +56,7 @@ SKIP_DIRS = {".obsidian", ".trash"}
 EXCLUDE = {"MEMORY.md", "log.md", "schema.md", "log-archive.md"}
 EXCLUDE_SUFFIXES = ("_archive.md", "_moc.md")
 CHROMA_DIR = os.path.expanduser("~/.claude/memory_chroma")
-COLLECTION_NAME = "memory_wiki"
+COLLECTION_NAME = "memory_wiki_ml"  # must match build.py
 # Plugin-owned source of truth for the vault path, written by setup.py.
 # Decoupled from settings.json `autoMemoryDirectory` (owned by Claude Code's
 # native auto-memory feature) to avoid the two features fighting over one key.

@@ -19,7 +19,8 @@ for c in "py -3.11" python3.11 python3.12 python3.10; do
 done || echo "MISSING: python"
 ```
 - On Windows, if `py -3.11` was not found → stop. Tell the user to run this in PowerShell, then **close and reopen Claude Code** and run `/my-memory:setup` again:
-  `winget install Python.Python.3.11`
+  `winget install Python.Python.3.11 --architecture x64`
+  (x64 even on an ARM laptop such as a Snapdragon Surface: the search libraries have no ARM build, and ARM Windows runs x64 Python.)
   (Or download Python 3.11 from https://www.python.org/downloads/windows/ and tick "Add python.exe to PATH".) A newer Python such as 3.12 or 3.13 will NOT work on Windows: one search library has no Windows build for it.
 - On macOS, if nothing was found → download the official Python 3.12 macOS installer from python.org and `open` it so the user can click through it (or, if they use Homebrew, `brew install python@3.12`). Then use `python3.12`.
 

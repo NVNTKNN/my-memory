@@ -52,7 +52,7 @@ updated: {today YYYY-MM-DD}
 
    If the rule is one whose violation causes silent, costly damage, set `priority: critical`, keep the whole file under 2000 bytes, and offer to add a one-line pointer to it in `~/.claude/CLAUDE.md` so it is always loaded.
 
-5. Filename: `{type}_{slug}.md`, lowercase, words joined by underscores, 2–4 words.
+5. Filename: `{type}_{slug}.md`, lowercase, words joined by underscores, 2–4 words, in plain English or romaji letters even when the note is in Japanese or another language. The note itself is written in the user's language.
 
 6. Check for an existing page on the same topic:
 ```bash

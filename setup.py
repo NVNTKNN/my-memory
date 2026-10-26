@@ -12,6 +12,7 @@ from __future__ import annotations
 import datetime
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -47,6 +48,12 @@ def check_python() -> None:
     if not ok:
         need = "3.11 (install it with: winget install Python.Python.3.11)" if WINDOWS else "3.10 to 3.12"
         sys.exit(f"ERROR: this is Python {v[0]}.{v[1]}; setup needs Python {need}.")
+    # ARM laptops (e.g. Snapdragon Surface): the search libraries ship x64
+    # Windows builds only. Windows on ARM runs x64 Python, so use that one.
+    if WINDOWS and platform.machine().upper() == "ARM64":
+        sys.exit("ERROR: this is the ARM build of Python. Install the x64 build instead "
+                 "(it runs on ARM Windows): winget install --id Python.Python.3.11 -e "
+                 "--scope user --architecture x64")
 
 
 def arg(p: Path) -> str:
@@ -194,7 +201,7 @@ def main() -> None:
     step(f"Adding hooks to {SETTINGS}")
     patch_settings(vault)
 
-    step("Building the search index (first run downloads an ~80 MB model)")
+    step("Building the search index (first run downloads a ~450 MB model)")
     env = dict(os.environ, HF_HUB_OFFLINE="0", TRANSFORMERS_OFFLINE="0",
                ANONYMIZED_TELEMETRY="False")
     build = [str(VENV_PY), "-X", "utf8", str(INDEX_DIR / "build_wrapper.py")]

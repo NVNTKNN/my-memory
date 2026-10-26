@@ -130,7 +130,7 @@ SKILLS_DIR = Path.home() / ".claude" / "skills"
 
 def installed_skill_names(skills_dir=None):
     """Names of installed skills. A page may cross-reference a skill by name
-    ([[staging-db-connect]]) -- a real, resolvable reference, not a dangling
+    ([[weekly-report]]) -- a real, resolvable reference, not a dangling
     page link. A directory only counts once it holds a SKILL.md."""
     d = Path(skills_dir) if skills_dir is not None else SKILLS_DIR
     if not d.is_dir():

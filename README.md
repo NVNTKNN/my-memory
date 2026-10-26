@@ -4,14 +4,16 @@ A memory for Claude Code, on **Mac and Windows**. Claude saves what matters from
 
 Everything stays on your computer. Nothing is shared or synced anywhere.
 
+Notes and questions can be in **Japanese, English or about 50 other languages**, mixed freely. The search understands meaning across languages, so a Japanese question finds an English note and the other way round.
+
 **Where it works:** Claude Code — in a terminal, or in the **Code** tab of the Claude desktop app. It does **not** work in ordinary Claude chat (claude.ai or the desktop app's Chat tab), because chat cannot run the small programs that do the remembering.
 
 ## Install the easy way (Mac or Windows)
 
 You need **Claude Code** installed and signed in. Claude does everything else.
 
-1. Put `my-memory.zip` in your **Downloads** folder.
-   (Downloaded it from GitHub as `my-memory-main.zip`? That's fine too.)
+1. Download [my-memory-1.2.0.zip](https://github.com/NVNTKNN/my-memory/archive/refs/tags/v1.2.0.zip) into your **Downloads** folder.
+   (Any zip of this repo works, such as `my-memory-main.zip`.)
 2. Open Claude Code, paste the prompt below, and press Enter.
 3. Say **Yes** when Claude asks permission to run things, and when your computer asks to allow an installer.
 4. Answer Claude's four short questions. The defaults are fine.
@@ -22,12 +24,12 @@ Please install the "my-memory" plugin for me. I'm not technical, so do every ste
 
 1. Work out whether this computer is a Mac or Windows.
 
-2. Find my-memory.zip or my-memory-main.zip (probably in my Downloads folder). Extract it so the folder ends up at "my-memory" inside my home folder (rename it if it comes out as my-memory-main). If that folder already exists, replace it. On Windows use PowerShell's Expand-Archive (Git Bash has no unzip); on a Mac use unzip.
+2. Find my-memory.zip, my-memory-main.zip or my-memory-1.2.0.zip (probably in my Downloads folder). If none is there, download https://github.com/NVNTKNN/my-memory/archive/refs/tags/v1.2.0.zip into Downloads. Extract it so the folder ends up at "my-memory" inside my home folder (rename it if it comes out as my-memory-main or my-memory-1.2.0). If that folder already exists, replace it. On Windows use PowerShell's Expand-Archive (Git Bash has no unzip); on a Mac use unzip.
 
 3. Make sure the right Python is installed:
    - Windows: Python 3.11 exactly, plus Git. Install whichever is missing with
        winget install --id Git.Git -e
-       winget install --id Python.Python.3.11 -e --scope user
+       winget install --id Python.Python.3.11 -e --scope user --architecture x64
      If you just installed Python, this session won't see it yet, so use its full path
      (usually %LOCALAPPDATA%\Programs\Python\Python311\python.exe).
    - Mac: Python 3.10, 3.11 or 3.12 (the python3 that comes with macOS is too old).
@@ -67,7 +69,7 @@ If you'd rather type the commands yourself.
 | | Mac | Windows |
 |---|---|---|
 | Claude Code | `claude --version` works | `claude --version` works |
-| Python | 3.10, 3.11 or 3.12 — check `python3.12 --version`. Get it from [python.org](https://www.python.org/downloads/macos/) | **3.11 exactly** — check `py -3.11 --version`. Get it: `winget install Python.Python.3.11` |
+| Python | 3.10, 3.11 or 3.12 — check `python3.12 --version`. Get it from [python.org](https://www.python.org/downloads/macos/) | **3.11 exactly** — check `py -3.11 --version`. Get it: `winget install Python.Python.3.11 --architecture x64` (x64 even on an ARM laptop) |
 | Git | not needed | needed — check `git --version`. Get it: `winget install Git.Git` |
 | Disk space | about 2 GB | about 2 GB |
 

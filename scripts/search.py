@@ -7,11 +7,11 @@ head) wrapped in <memory_context>, kept under Claude Code's ~10k-char hook
 additionalContext inline cap so the whole blob injects instead of spilling
 to a tool-results file with only a ~2KB preview.
 
-Retrieval is HYBRID: dense semantic similarity (all-MiniLM-L6-v2 via ChromaDB)
+Retrieval is HYBRID: dense semantic similarity (multilingual MiniLM via ChromaDB)
 fused with lexical BM25 over the same corpus using Reciprocal Rank Fusion.
-Dense alone misses exact-token queries (error strings, resource names,
-`ml:cell:*` keys, task-def families) because MiniLM only embeds each page's
-top ~256 tokens and scores on fuzzy meaning; BM25 catches the literal matches.
+Dense alone misses exact-token queries (error strings, file names,
+invoice numbers, product codes) because MiniLM only embeds each page's
+top ~128 tokens and scores on fuzzy meaning; BM25 catches the literal matches.
 Per Anthropic's Contextual Retrieval, adding a lexical signal to dense
 embeddings cuts retrieval misses materially (~35% -> ~49% fewer).
 
@@ -26,6 +26,7 @@ import os
 import re
 import math
 import time
+import unicodedata
 from datetime import date
 
 # The embedding model is cached locally; force offline so model load never
@@ -41,8 +42,8 @@ import chromadb
 from sentence_transformers import SentenceTransformer
 
 CHROMA_DIR = os.path.expanduser("~/.claude/memory_chroma")
-COLLECTION = "memory_wiki"
-MODEL_NAME = "all-MiniLM-L6-v2"
+COLLECTION = "memory_wiki_ml"  # must match build.py
+MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 TOP_K = 5          # files injected into context
 CANDIDATE_K = 40   # dense candidate pool size before fusion (pages + section chunks)
 RRF_K = 60         # Reciprocal Rank Fusion constant (standard default)
@@ -66,7 +67,8 @@ RECENCY_FLOOR = 0.85          # max recency penalty: 15% of fused score
 LINK_WEIGHT = 0.5             # RRF weight of the wikilink-neighbor ranking
 LINK_TOP = 3                  # expand neighbors of this many top fused hits
 
-_TOKEN_RE = re.compile(r"[a-z0-9_]+")
+# ASCII words, or runs of Japanese kana / CJK characters (split into pairs below).
+_TOKEN_RE = re.compile(r"[a-z0-9_]+|[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]+")
 _CRITICAL_RE = re.compile(r"^priority:\s*critical\b", re.MULTILINE)
 _UPDATED_RE = re.compile(r"^\s*updated:\s*['\"]?(\d{4}-\d{2}-\d{2})", re.MULTILINE)
 _WIKILINK_RE = re.compile(r"\[\[([^\]|#]+)")
@@ -129,8 +131,17 @@ def _prune_stale_state() -> None:
 
 def tokenize(text: str) -> list:
     """Lowercase alphanumeric/underscore tokens. Keeps identifiers like
-    `staging_latest` and `orders_15m` intact for lexical matching."""
-    return _TOKEN_RE.findall(text.lower())
+    `invoice_2026` and `sku_100g` intact for lexical matching.
+    Japanese has no spaces between words, so a kana/CJK run becomes its
+    overlapping two-character pieces (信用状 -> 信用, 用状). NFKC first turns
+    full-width letters and half-width katakana into their usual forms."""
+    out = []
+    for tok in _TOKEN_RE.findall(unicodedata.normalize("NFKC", text).lower()):
+        if tok.isascii() or len(tok) == 1:
+            out.append(tok)
+        else:
+            out.extend(tok[i:i + 2] for i in range(len(tok) - 1))
+    return out
 
 
 def bm25_scores(corpus_tokens: list, query_tokens: list, k1: float = 1.5, b: float = 0.75) -> list:

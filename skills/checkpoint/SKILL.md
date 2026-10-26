@@ -39,7 +39,7 @@ A background helper starts this after the memory check (`checkpoint_hook.py`) fi
    - **skip:** a page already says this.
    - **update:** a page covers the topic. Edit its `## Current state` in place and set `updated:` to today. If the fact replaces an older one, add `- YYYY-MM-DD: was <old>; now <new>` under `## History`, newest first. Never add a dated section at the top of a page.
    - **merge:** several facts belong on one page. Make one edit.
-   - **new:** no page fits. Pick exactly one top-level tag from `## Closed top-level tag legend` in `{wiki}/MEMORY.md`. If no tag fits, use `meta`. Name the file `{type}_{slug}.md`: lowercase, words joined by underscores, 2 to 4 words. Wherever you link to a page, use its file name without `.md`: `[[project_goa_trip]]`, never `[[goa_trip]]`. Write it to `{wiki}/{tag}/` if that folder exists, otherwise to `{wiki}/`:
+   - **new:** no page fits. Pick exactly one top-level tag from `## Closed top-level tag legend` in `{wiki}/MEMORY.md`. If no tag fits, use `meta`. Name the file `{type}_{slug}.md`: lowercase, words joined by underscores, 2 to 4 words, in plain English or romaji letters even when the note is in Japanese or another language. Write the note itself in the language the user writes in. Wherever you link to a page, use its file name without `.md`: `[[project_goa_trip]]`, never `[[goa_trip]]`. Write it to `{wiki}/{tag}/` if that folder exists, otherwise to `{wiki}/`:
      ```markdown
      ---
      name: {slug}

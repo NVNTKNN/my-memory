@@ -34,8 +34,11 @@ def _default_memory_dir() -> str:
 
 MEMORY_DIR = os.environ.get("MY_MEMORY_DIR") or _default_memory_dir()
 CHROMA_DIR = os.path.expanduser("~/.claude/memory_chroma")
-COLLECTION = "memory_wiki"
-MODEL_NAME = "all-MiniLM-L6-v2"
+# Multilingual model (Japanese, English and ~50 more). A new collection name
+# so an index built with the old English-only model is rebuilt, never mixed.
+COLLECTION = "memory_wiki_ml"
+OLD_COLLECTION = "memory_wiki"
+MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 EXCLUDE = {"MEMORY.md", "log.md", "schema.md", "log-archive.md"}
 # Archived history is superseded content; MOCs are human navigation indexes.
 # Both pollute top-5 retrieval if embedded.
@@ -62,8 +65,8 @@ def _fm_field(content: str, key: str) -> str:
 def split_sections(content: str) -> list[tuple[str, str]]:
     """Split a page body into `## ` sections for per-section embeddings.
 
-    The page-level vector only covers the head of the page (MiniLM truncates
-    at ~256 tokens), so each section gets its own vector. Returns
+    The page-level vector only covers the head of the page (the model
+    truncates at 128 tokens), so each section gets its own vector. Returns
     (heading, chunk) pairs; the chunk is prefixed with the page's
     name/description so an ambiguous heading like 'History' still embeds
     with page context. The preamble (frontmatter + text before the first
@@ -159,6 +162,8 @@ def collect_md_files() -> list[tuple[str, str]]:
 def main():
     model = SentenceTransformer(MODEL_NAME)
     client = chromadb.PersistentClient(path=CHROMA_DIR)
+    if OLD_COLLECTION in client.list_collections():
+        client.delete_collection(OLD_COLLECTION)  # vectors from the old model
     collection = client.get_or_create_collection(COLLECTION)
 
     files = collect_md_files()
